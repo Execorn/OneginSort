@@ -4,14 +4,9 @@
 
 const int true = 1;
 
-int checkString (char* str) {
-    char *p = str;
-    while (isspace( (unsigned char ) *p)) ++p;
-    return (*p == '\0' || *p == '\n') ? 0 : 1;
-}
 
 int checking (const char* cur) {
-    char* checkString = "[]<*?>1234567890IVXL«»—.,;…' ";
+    char* checkString = "[]<*?>1234567890IVXL«»—-().,;…' ";
     while (*checkString) {
         if (*cur == *checkString) {
             return 0;
@@ -19,6 +14,12 @@ int checking (const char* cur) {
         checkString++;
     }
     return 1;
+}
+
+int checkString (char* str) {
+    char* p = str;
+    while (isspace( (unsigned char ) *p) || !checking(p)) ++p;
+    return (*p == '\0' || *p == '\n') ? 0 : 1;
 }
 
 int strcmp_modified (const char* str1, const char* str2) {
@@ -100,16 +101,16 @@ void StartSorting () {
     printf("Launching quicksort... Done. \n");
     quicksort(strings, 0, elementNumber - 1);
     printf("Finishing sorting the array... Done. \n");
-    FILE* onegin_out = fopen("onegin_sorted.txt", "a+");
+    FILE* onegin_out = fopen("onegin_sorted.txt", "w");
     if (onegin_out == NULL) {
         printf("Something unexpected happened, can't open 'onegin_sorted.txt'. \n");
         return;
     }
     printf("Starting writing to 'onegin_sorted.txt'. \n");
-    rewind(onegin_out);
     for (size_t current_string = 0; current_string < elementNumber; ++current_string) {
         fprintf(onegin_out,"%s \n", strings[current_string]);
     }
+    printf("Finished writing to 'onegin_sorted.txt'. \n");
     fclose(onegin_out);
 }
 
