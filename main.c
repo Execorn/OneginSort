@@ -23,24 +23,28 @@ int checkString (char* str) {
 }
 
 int strcmp_modified (const char* str1, const char* str2) {
-    while (*str1 == *str2 && checking(str1) && checking(str2)) {
-        if (!checking(str1) || (!checking(str2))) {
-            if (!checking(str1)) {
-                str1++;
+    while (true) {
+        if (!*str1) {
+            if (*str1 == '\0' || *str1 == '\n') {
+                break;
             }
-            if (!checking(str2)) {
-                str2++;
-            }
-        } else {
             str1++;
-            str2++;
+            continue;
         }
-
+        if (!*str1) {
+            if (*str1 == '\0' || *str1 == '\n') {
+                break;
+            }
+            str1++;
+            continue;
+        }
+        if (*str1 != *str2) {
+            break;
+        }
+        str1++;
+        str2++;
     }
-    if (*str1 == *str2) {
-        return 0;
-    }
-    return *str1 > *str2 ? 1 : -1;
+    return *str1 - *str2;
 }
 
 int readLine (FILE *in, char *buffer, size_t max) {
@@ -57,8 +61,8 @@ size_t partition (char** a, size_t l, size_t r) {
     char* pivot = a[(l + r) / 2];
     size_t i = l, j = r;
     while (true) {
-        while (strcmp_modified(a[i], pivot) == -1) i++;
-        while (strcmp_modified(a[j], pivot) == 1) j--;
+        while (strcmp_modified(a[i], pivot) < 0) i++;
+        while (strcmp_modified(a[j], pivot) > 0) j--;
         if (i >= j) {
             return j;
         }
@@ -84,9 +88,10 @@ void StartSorting () {
 
     char** strings = (char**) malloc(sizeof (char*));
     size_t elementNumber = 0;
+
     while (!feof(onegin)) {
-        char* str = (char*) malloc(sizeof (char) * 400);
-        if (!readLine(onegin, str, 400)) {
+        char* str = (char*) malloc(sizeof (char) * 600);
+        if (!readLine(onegin, str, 600)) {
             break;
         }
         if (checkString(str)) {
@@ -95,21 +100,27 @@ void StartSorting () {
             strings = (char**) realloc(strings, sizeof (char*) * (elementNumber + 1));
         }
     }
+
     fclose(onegin);
     printf("Successfully finished reading strings from 'onegin.txt' \n"
            "Total strings = %zu \n", elementNumber);
+
     printf("Launching quicksort... Done. \n");
     quicksort(strings, 0, elementNumber - 1);
     printf("Finishing sorting the array... Done. \n");
+
     FILE* onegin_out = fopen("onegin_sorted.txt", "w");
     if (onegin_out == NULL) {
         printf("Something unexpected happened, can't open 'onegin_sorted.txt'. \n");
         return;
     }
+    fflush(onegin_out);
     printf("Starting writing to 'onegin_sorted.txt'. \n");
+
     for (size_t current_string = 0; current_string < elementNumber; ++current_string) {
-        fprintf(onegin_out,"%s \n", strings[current_string]);
+        fputs(strings[current_string], onegin_out);
     }
+
     printf("Finished writing to 'onegin_sorted.txt'. \n");
     fclose(onegin_out);
 }
